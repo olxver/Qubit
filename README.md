@@ -1,7 +1,10 @@
 # Qubit
 Qubit is a powerful and customizable Discord bot designed to simplify the lives of server administrators and staff.
 
-With Qubit, administrators can easily create "Help Entries" to provide answers to frequently asked questions. All you need to do is type a slash command, and the bot does all the work! Additionally, users can easily create tickets by clicking a button, streamlining support processes.
+Long ago were the days of copying and pasting answers to frequently asked questions. 
+With Qubit, you can easily create 'Help Entries' using slash commands, making it a breeze for server administrators and staff to answer questions.
+
+Qubit is also equipped with the ability to create tickets with the click of a button, simplifying the process for users to submit and resolve issues.
 
 # Invite Qubit
 If you would like to invite Qubit to your Discord server, use this [link](https://discord.com/api/oauth2/authorize?client_id=1096576282394890431&permissions=9331018169424&scope=bot%20applications.commands)

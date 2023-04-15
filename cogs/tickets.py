@@ -31,7 +31,7 @@ class Tickets(commands.Cog):
                     desc:str=SlashOption(description="The description for the embed? (add imgur source links if you want e.g i.imgur.com/example.png)", required=False)):
 
         
-        await interaction.send(f"{name},{desc},{ticket_name}")
+        await interaction.send(f"{name},{desc},{ticket_name}") # testing purposes for now
 
 
 

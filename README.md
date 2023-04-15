@@ -6,17 +6,17 @@ You can easily create Tickets, users just need to click a button and there probl
 
 If you would like to invite Qubit, use [this](https://discord.com/api/oauth2/authorize?client_id=1096576282394890431&permissions=9331018169424&scope=bot%20applications.commands) link.
 
-# Self hosting
-Clone the repository using git clone https://github.com/olxver/Qubit.git.
+# Self Hosting
+Clone the repository using `git clone https://github.com/olxver/Qubit.git`
 
 Install the required dependencies by running `pip install -r requirements.txt`
 
-Create a new Discord application and bot account in the Discord Developer Portal.
+Create a new Discord application and bot account in the [Discord Developer Portal](https://discord.com/developers/applications).
 
 Add your bot to your Discord server by generating an invite link in the Developer Portal.
 
 Replace "token" at the bot.py file with your bot's token.
 
-Run the bot by running python bot.py.
+Run the bot by running `python bot.py`
 
 And that's it! Your bot should now be up and running on your server.

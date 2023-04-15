@@ -70,19 +70,73 @@ class Entries(commands.Cog):
                     await interaction.send(embed=embed)
             else:
                 await interaction.send("Sorry, could not find an entry with the specified name and tag.", ephemeral=True)
+
     @entries.subcommand(name='list', description="Lists all entries, not limited by tag.")
     async def list_help_entries(self, interaction:Interaction):
+        await interaction.response.defer() # Defer the response first
+        entries = self.get_entries(interaction.guild.id)
+        if not entries:
+            await interaction.followup.send('No help entries found.')
+            return
+
+        pages = self.paginate_entries(entries)
+        current_page = 0
+        embed = self.get_embed1(pages[current_page], current_page, len(pages))
+        message = await interaction.followup.send(embed=embed) # Use followup to send message response
+
+        await asyncio.sleep(1)
+
+        if len(pages) > 1:
+            # Add reactions for page navigation
+            reactions = ["◀️", "▶️", "❌"]
+            for reaction in reactions:
+                await message.add_reaction(reaction)
+
+            # Define the check function for reaction events
+            def reaction_check(reaction, user):
+                return user == interaction.user and reaction.message.id == message.id and reaction.emoji in reactions
+
+            # Listen for reactions and update the embed
+            while True:
+                try:
+                    reaction, user = await self.bot.wait_for("reaction_add", timeout=60.0, check=reaction_check)
+                    if reaction.emoji == "▶️":
+                        if current_page < len(pages) - 1:
+                            current_page += 1
+                            embed = self.get_embed1(pages[current_page], current_page, len(pages))
+                            await message.edit(embed=embed)
+                    elif reaction.emoji == "◀️":
+                        if current_page > 0:
+                            current_page -= 1
+                            embed = self.get_embed1(pages[current_page], current_page, len(pages))
+                            await message.edit(embed=embed)
+                    elif str(reaction.emoji) == '❌':
+                        await message.clear_reactions()
+                        break
+
+                    await message.remove_reaction(reaction, user)
+                except asyncio.TimeoutError:
+                    break
+
+    def get_entries(self, server_id):
         entries = []
         with sql.connect('data/server_entries.db') as db:
             cursor = db.cursor()
-            cursor.execute("SELECT * FROM help_entries WHERE server_id=?", (interaction.guild.id,))
+            cursor.execute("SELECT * FROM help_entries WHERE server_id=?", (server_id,))
             rows = cursor.fetchall()
             for row in rows:
-                entries.append(f'{row[1]}: {row[2]}')
-        if entries:
-            await interaction.send('\n'.join(entries))
-        else:
-            await interaction.send('No help entries found.')
+                entries.append(f'**Tag** `{row[2]}`: **Name** `{row[1]}`')
+        return entries
+
+    def paginate_entries(self, entries, page_size=5):
+        return [entries[i:i+page_size] for i in range(0, len(entries), page_size)]
+
+    def get_embed1(self, entries, current_page, total_pages):
+        entries_text = "\n".join(entries)
+        embed = discord.Embed(title="Help entries", description=entries_text)
+        embed.set_footer(text=f"Page {current_page+1}/{total_pages}")
+        return embed
+
             
     @entries.subcommand(name="search", description="Search for help entries by a tag.")
     @commands.has_guild_permissions(manage_messages=True)

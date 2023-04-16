@@ -116,13 +116,10 @@ async def sync(interaction:Interaction):
         for dirname in dirs:
             path = os.path.relpath(os.path.join(root, dirname), base_directory)
             print(dirname)
-            try:
-                repo.create_git_tree(
-                    tree=[{"path": f"{path}/", "mode": "040000", "type": "tree"}],
-                    base_tree=repo.get_branch("main").commit.commit.tree.sha,
-                )
-            except Exception as e:
-                print(f"Failed to create {dirname}, \n{e}")
+            repo.create_git_tree(
+                tree=[{"path": f"{path}/", "mode": "040000", "type": "tree"}],
+                base_tree=repo.get_branch("main").commit.commit.tree.sha,
+            )
 
 
 

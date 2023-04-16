@@ -4,11 +4,13 @@ import nextcord as discord
 import os
 import sqlite3 as sql
 import random
+import gitignore_parser
 import asyncio
 from cogs.tickets import TicketView
 from nextcord.ext import commands
 from nextcord import SlashOption, Interaction
 from nextcord.ext import application_checks
+from github import Github, InputGitTreeElement
 from dotenv import load_dotenv
 
 load_dotenv()  # load environment variables from .env file
@@ -71,15 +73,46 @@ async def reload(interaction:Interaction, cog:str=SlashOption(required=True)):
         await interaction.send(f"a fatal error occurred that was not handled correctly. log:\n{error}", ephemeral=True)
     
 
-@bot.slash_command(description="Sync all cogs to src.")
+@bot.slash_command(description="Push local changes to GitHub.")
 @application_checks.is_owner()
 async def sync(interaction:Interaction):
-    reloaded_cogs = []
-    for file in os.listdir('./cogs'):
-        if file.endswith('.py'):
-            bot.reload_extension(f'cogs.{file[:-3]}')
-            reloaded_cogs.append(file[:-3])
-    await interaction.send(f"Synced cogs: `{', '.join(reloaded_cogs)}`")
+    # Make sure to replace GITHUB_API_TOKEN in the .env with your personal access token
+    g = Github(github_token)
+
+    # Get the authenticated user
+    user = g.get_user()
+
+    repo = user.get_repo("Qubit")
+    base_directory = "D:/Coding/Qubit/"
+    await interaction.response.defer()
+    # Parse the .gitignore file
+    gitignore = gitignore_parser.parse_gitignore(".gitignore")
+
+    # Loop through all the files and folders in the base directory and upload them to GitHub
+    for root, dirs, files in os.walk(base_directory):
+        # Upload the files to GitHub
+        for filename in files:
+            with open(os.path.join(root, filename), "r") as file:
+                content = file.read()
+                path = os.path.relpath(os.path.join(root, filename), base_directory)
+                print(filename)
+                try:
+                    repo.create_file(path, f"Add {filename}", content, branch="main")
+                except:
+                    print(f"Failed to upload {filename}")
+
+        # Create the folders on GitHub
+        for dirname in dirs:
+            path = os.path.relpath(os.path.join(root, dirname), base_directory)
+            print(dirname)
+            try:
+                repo.create_git_tree(
+                    tree=[{"path": f"{path}/", "mode": "040000", "type": "tree"}],
+                    base_tree=repo.get_branch("main").commit.commit.tree.sha,
+                )
+            except:
+                print(f"Failed to create {dirname}")
+
 
 
 @bot.slash_command(description="Unloads a cog.")

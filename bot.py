@@ -9,6 +9,12 @@ from cogs.tickets import TicketView
 from nextcord.ext import commands
 from nextcord import SlashOption, Interaction
 from nextcord.ext import application_checks
+from dotenv import load_dotenv
+
+load_dotenv()  # load environment variables from .env file
+
+github_token = os.getenv("GITHUB_API_TOKEN")  
+token = os.getenv("BOT_TOKEN")
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -20,11 +26,6 @@ class Bot(commands.Bot):
 
     async def on_ready(self):
         if not self.persistent_views_added:
-            # Register the persistent view for listening here.
-            # Note that this does not send the view to any message.
-            # To do that, you need to send a message with the View as shown below.
-            # If you have the message_id you can also pass it as a keyword argument, but for this example
-            # we don't have one.
             self.add_view(TicketView(tag=None))
             self.persistent_views_added = True
 
@@ -69,6 +70,7 @@ async def reload(interaction:Interaction, cog:str=SlashOption(required=True)):
     except Exception as error:
         await interaction.send(f"a fatal error occurred that was not handled correctly. log:\n{error}", ephemeral=True)
     
+
 @bot.slash_command(description="Sync all cogs to src.")
 @application_checks.is_owner()
 async def sync(interaction:Interaction):
@@ -78,6 +80,7 @@ async def sync(interaction:Interaction):
             bot.reload_extension(f'cogs.{file[:-3]}')
             reloaded_cogs.append(file[:-3])
     await interaction.send(f"Synced cogs: `{', '.join(reloaded_cogs)}`")
+
 
 @bot.slash_command(description="Unloads a cog.")
 @application_checks.is_owner()
@@ -157,4 +160,4 @@ async def wipe_data(interaction:Interaction):
 
 
 
-bot.run("token")
+bot.run(token)

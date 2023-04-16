@@ -6,6 +6,7 @@ import datetime
 import random
 import aiohttp
 import io
+import aiofiles
 import asyncio
 import contextlib
 
@@ -70,7 +71,7 @@ class MessageView(discord.ui.View):
             await message.delete()
 
     @discord.ui.button(
-        label="Save transciption",
+        label="Save message log",
         style=discord.ButtonStyle.blurple, custom_id="save:blurple",
         emoji="📄",
         disabled=False
@@ -103,16 +104,16 @@ class MessageView(discord.ui.View):
 
         # create a file object from the file name
 
-        with open(filename, 'rb') as f:
-            file_object = discord.File(f, filename=filename)
-
-
+        async with aiofiles.open(filename, 'rb') as f:
+            file_bytes = await f.read()
+            file_object = discord.File(io.BytesIO(file_bytes), filename=filename)
         # send the file object in a list
         await interaction.send(files=[file_object])
 
         # remove the file
-        await asyncio.sleep(10)
+        await asyncio.sleep(5) # wait for a few seconds to ensure file is closed
         os.remove(filename)
+
 
 
 
@@ -181,7 +182,6 @@ class Tickets(commands.Cog):
                     name:str=SlashOption(description="The label for the button?", required=True),
                     tag=SlashOption(description="The tag to show on the created channels. (e.g tag-ticket-user0000)", required=True),
                     desc:str=SlashOption(description="The description for the embed. (we recommend to set guidelines for a ticket)", required=True),
-                    logging:bool=SlashOption(description="Enable message logging?", required=True),
                     channel:discord.TextChannel=SlashOption(description="The channel to send the message into. (dont type anything to choose current channel)", required=False)
                 ):
 
@@ -189,8 +189,6 @@ class Tickets(commands.Cog):
         await interaction.send(f"{name},{desc},{channel}") # testing purposes for now
         if not channel:
             channel = interaction.channel
-        
-        
 
         embed = discord.Embed(
             title="Create a ticket",

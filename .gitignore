@@ -2,3 +2,4 @@
 data/
 cogs/__pycache__
 data\server_entries.db
+*.db

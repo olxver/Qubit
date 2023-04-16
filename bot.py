@@ -121,8 +121,8 @@ async def sync(interaction:Interaction):
                     tree=[{"path": f"{path}/", "mode": "040000", "type": "tree"}],
                     base_tree=repo.get_branch("main").commit.commit.tree.sha,
                 )
-            except:
-                print(f"Failed to create {dirname}")
+            except Exception as e:
+                print(f"Failed to create {dirname}, \n{e}")
 
 
 

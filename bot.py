@@ -1,4 +1,5 @@
 
+import fnmatch
 import sys
 import nextcord as discord
 import os
@@ -85,21 +86,31 @@ async def sync(interaction:Interaction):
     repo = user.get_repo("Qubit")
     base_directory = "D:/Coding/Qubit/"
     await interaction.response.defer()
+
     # Parse the .gitignore file
-    gitignore = gitignore_parser.parse_gitignore(".gitignore")
+    gitignore = []
+    with open(".gitignore", "r") as file:
+        gitignore = file.read().splitlines()
 
     # Loop through all the files and folders in the base directory and upload them to GitHub
     for root, dirs, files in os.walk(base_directory):
         # Upload the files to GitHub
         for filename in files:
-            with open(os.path.join(root, filename), "r") as file:
+            # Check if the file is ignored by .gitignore
+            if any(fnmatch.fnmatch(filename, pattern) for pattern in gitignore):
+                continue
+
+            with open(os.path.join(root, filename), "r", encoding="utf-8") as file:
                 content = file.read()
                 path = os.path.relpath(os.path.join(root, filename), base_directory)
                 print(filename)
                 try:
-                    repo.create_file(path, f"Add {filename}", content, branch="main")
-                except:
-                    print(f"Failed to upload {filename}")
+                    # Get the current contents of the file on the branch
+                    contents = repo.get_contents(path, ref="main")
+                    # Update the file with the new content and sha value
+                    repo.update_file(path, f"Update {filename}", content, contents.sha, branch="main")
+                except Exception as e:
+                    print(f"Failed to upload {filename}\n {e}")
 
         # Create the folders on GitHub
         for dirname in dirs:

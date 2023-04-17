@@ -63,11 +63,14 @@ class MessageView(discord.ui.View):
         view = discord.ui.View()
         view.add_item(button)
         await interaction.send(embed=embed, view=view)
-        with sql.connect('data/ticketData.db') as db:
+        with sql.connect('data/publicTicketData.db') as db:
             cursor = db.cursor()
             cursor.execute("SELECT ticket_id FROM data WHERE server_id = ?", (interaction.guild.id,))
             tID = cursor.fetchone()
-            message = await interaction.channel.fetch_message(int(tID[0]))
+            try:
+                message = await interaction.channel.fetch_message(int(tID[0]))
+            except Exception as e:
+                await interaction.send(f"There was an error handling your request.\n{e}\n**This issue is known, please don't report it!**")
             await message.delete()
 
     @discord.ui.button(
@@ -135,7 +138,7 @@ class TicketView(discord.ui.View):
             interaction.user: discord.PermissionOverwrite(read_messages=True, send_messages=True)
 
         }
-        with sql.connect('data/ticketData.db') as db:
+        with sql.connect('data/publicTicketData.db') as db:
             cursor = db.cursor()
             cursor.execute("SELECT tag FROM data WHERE server_id=?", (interaction.guild.id,))
 
@@ -158,7 +161,7 @@ class TicketView(discord.ui.View):
         embed.set_footer(text="developed by olxver#9999")
         embed.set_image(url="https://media.tenor.com/uUNv_-QQhTIAAAAd/mrbean-bean.gif")
         message = await channel.send(embed=embed, view=MessageView())
-        with sql.connect('data/ticketData.db') as db:
+        with sql.connect('data/publicTicketData.db') as db:
             cursor = db.cursor()
             cursor.execute("INSERT INTO data (ticket_id, server_id) VALUES (?, ?)", (message.id, interaction.guild.id))
             db.commit()
@@ -169,7 +172,7 @@ class Tickets(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
     
-    @discord.slash_command(description="Parent command for tickets")
+    @discord.slash_command(description="Parent command for tickets", force_global=True)
     @commands.has_guild_permissions(manage_messages=True)
     @commands.cooldown(1, 10, BucketType.guild)
     async def tickets(self, interaction:Interaction):
@@ -186,7 +189,7 @@ class Tickets(commands.Cog):
                 ):
 
         
-        await interaction.send(f"{name},{desc},{channel}") # testing purposes for now
+        
         if not channel:
             channel = interaction.channel
 
@@ -196,13 +199,15 @@ class Tickets(commands.Cog):
             color=discord.Colour.random()
         )
         view = TicketView(tag=tag)
-        with sql.connect('data/ticketData.db') as db:
+        with sql.connect('data/publicTicketData.db') as db:
             cursor = db.cursor()
             cursor.execute("INSERT INTO data (tag, server_id) VALUES (?,?) ", (tag, interaction.guild.id))
             db.commit()
         view.children[0].label = name
 
         await channel.send(embed=embed, view=view)
+        await interaction.send("Successfully created a ticket system!", ephemeral=True) 
+
 
 
 

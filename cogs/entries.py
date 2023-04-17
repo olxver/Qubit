@@ -15,7 +15,7 @@ class Entries(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
     
-    @discord.slash_command(description="Parent command for entries")
+    @discord.slash_command(description="Parent command for entries", force_global=True)
     async def entries(self, interaction: Interaction):
         """
         This is the main slash command that will be the prefix of all commands below.
@@ -27,7 +27,7 @@ class Entries(commands.Cog):
     @entries.subcommand(name="create", description="Creates a help entry.")
     @commands.has_guild_permissions(manage_messages=True)
     @commands.cooldown(1, 10, BucketType.guild)
-    async def create_entry(self, interaction:Interaction, name: str = SlashOption(description="The name of the entry?", required=True), tag: str = SlashOption(description="The tag for the entry? (e.g Python support or LSPDFR support.)", required=True), answer: str = SlashOption(description="The answer for the entry?", required=True), image_check: bool = SlashOption(description="Would you like an image for the answer to the entry?", required=True)):
+    async def create_entry(self, interaction:Interaction, name: str = SlashOption(description="The name of the entry?", required=True), tag: str = SlashOption(description="The tag for the entry? (e.g Python support or FAQs.)", required=True), answer: str = SlashOption(description="The answer for the entry?", required=True), image_check: bool = SlashOption(description="Would you like an image for the answer to the entry?", required=True)):
         name, tag = name.lower(), tag.lower()
         with sql.connect('data/server_entries.db') as db:
             entry = db.execute("SELECT * FROM help_entries WHERE server_id=? AND help_name=? AND tag=?", (interaction.guild.id, name, tag)).fetchone()

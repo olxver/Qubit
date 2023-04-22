@@ -23,6 +23,7 @@ ID = os.getenv("ID")
 
 intents = discord.Intents.default()
 intents.message_content = True
+intents.members = True
 
 class Bot(commands.Bot):
     def __init__(self, *args, **kwargs):

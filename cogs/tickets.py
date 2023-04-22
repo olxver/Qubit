@@ -172,24 +172,22 @@ class Tickets(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
     
-    @discord.slash_command(description="Parent command for tickets", force_global=True)
+    @discord.slash_command(force_global=True)
     @commands.has_guild_permissions(manage_messages=True)
     @commands.cooldown(1, 10, BucketType.guild)
     async def tickets(self, interaction:Interaction):
+        """parent command"""
         pass
 
-    @tickets.subcommand(description="Create a message in which a user can create a ticket, with buttons")
+    @tickets.subcommand(description="Create a message in which a user can create a ticket")
     @commands.has_guild_permissions(manage_messages=True)
-    @commands.cooldown(1, 10, BucketType.guild)
+    @commands.cooldown(1, 120, BucketType.guild)
     async def create(self, interaction:Interaction, 
                     name:str=SlashOption(description="The label for the button?", required=True),
                     tag=SlashOption(description="The tag to show on the created channels. (e.g tag-ticket-user0000)", required=True),
                     desc:str=SlashOption(description="The description for the embed. (we recommend to set guidelines for a ticket)", required=True),
-                    channel:discord.TextChannel=SlashOption(description="The channel to send the message into. (dont type anything to choose current channel)", required=False)
+                    channel:discord.TextChannel=SlashOption(description="The channel to send the message into. (dont type anything to choose current channel)", required=False),
                 ):
-
-        
-        
         if not channel:
             channel = interaction.channel
 

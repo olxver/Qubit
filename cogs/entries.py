@@ -81,7 +81,7 @@ class Entries(commands.Cog):
 
         pages = self.paginate_entries(entries)
         current_page = 0
-        embed = self.get_embed1(pages[current_page], current_page, len(pages))
+        embed = self.get_embed(pages[current_page], current_page, len(pages))
         message = await interaction.followup.send(embed=embed) # Use followup to send message response
 
         await asyncio.sleep(1)
@@ -103,14 +103,14 @@ class Entries(commands.Cog):
                     if reaction.emoji == "▶️":
                         if current_page < len(pages) - 1:
                             current_page += 1
-                            embed = self.get_embed1(pages[current_page], current_page, len(pages))
+                            embed = self.get_embed(pages[current_page], current_page, len(pages))
                             await message.edit(embed=embed)
                     elif reaction.emoji == "◀️":
                         if current_page > 0:
                             current_page -= 1
-                            embed = self.get_embed1(pages[current_page], current_page, len(pages))
+                            embed = self.get_embed(pages[current_page], current_page, len(pages))
                             await message.edit(embed=embed)
-                    elif str(reaction.emoji) == '❌':
+                    elif reaction.emoji == '❌':
                         await message.clear_reactions()
                         break
 
@@ -131,7 +131,7 @@ class Entries(commands.Cog):
     def paginate_entries(self, entries, page_size=5):
         return [entries[i:i+page_size] for i in range(0, len(entries), page_size)]
 
-    def get_embed1(self, entries, current_page, total_pages):
+    def get_embed(self, entries, current_page, total_pages):
         entries_text = "\n".join(entries)
         embed = discord.Embed(title="Help entries", description=entries_text)
         embed.set_footer(text=f"Page {current_page+1}/{total_pages}")
@@ -153,7 +153,7 @@ class Entries(commands.Cog):
             pages = [entries[i:i+page_size] for i in range(0, len(entries), page_size)]  # Split entries into pages
 
             current_page = 0
-            embed = self.get_embed(entries, current_page, page_size)
+            embed = self.get_embed_search(entries, current_page, page_size)
             message = await interaction.send(embed=embed)
 
             if len(pages) > 1:
@@ -173,19 +173,19 @@ class Entries(commands.Cog):
                         if reaction.emoji == "▶️":
                             if current_page < len(pages) - 1:
                                 current_page += 1
-                                embed = self.get_embed(entries, current_page, page_size)
+                                embed = self.get_embed_search(entries, current_page, page_size)
                                 await message.edit(embed=embed)
                         elif reaction.emoji == "◀️":
                             if current_page > 0:
                                 current_page -= 1
-                                embed = self.get_embed(entries, current_page, page_size)
+                                embed = self.get_embed_search(entries, current_page, page_size)
                                 await message.edit(embed=embed)
                         await message.remove_reaction(reaction, user)
                     except asyncio.TimeoutError:
                         break
 
 
-    def get_embed(self, entries, current_page, page_size):
+    def get_embed_search(self, entries, current_page, page_size):
         start_index = current_page * page_size + 1
         end_index = min((current_page + 1) * page_size, len(entries))
         embed = discord.Embed(title=f"Help entries ({start_index}-{end_index} of {len(entries)})")

@@ -8,6 +8,16 @@
 
 </p>
 
+<div id="top"></div>
+<p align="center">
+  <img src="https://img.shields.io/github/contributors/olxver/Qubit.svg?style=for-the-badge"/>
+  <img src="https://img.shields.io/github/forks/olxver/Qubit.svg?style=for-the-badge"/>
+  <img src="https://img.shields.io/github/stars/olxver/Qubit.svg?style=for-the-badge"/>
+  <img src="https://img.shields.io/github/issues/olxver/Qubit.svg?style=for-the-badge"/>
+  <img src="https://img.shields.io/github/license/olxver/Qubit.svg?style=for-the-badge"/>
+
+</p>
+
 # Qubit
 Qubit is a powerful and customizable Discord bot designed to simplify the lives of server administrators and staff.
 
@@ -38,3 +48,12 @@ That's it! Your bot should now be up and running on your server.
 
 # Contributions
 We welcome contributions to Qubit! If you encounter any issues or have ideas for new features, please create an issue on the GitHub repository. If you'd like to make changes yourself, feel free to create a pull request.
+
+# License 
+Distributed under the MIT License. See `LICENSE` for more information.
+
+# Contact
+Discord: olxver#9999
+
+
+

@@ -32,7 +32,10 @@ Create a new Discord application and bot account in the [Discord Developer Porta
 
 Add your bot to your Discord server by generating an invite link in the Developer Portal.
 
-Replace the "token" variable in the bot.py file with your bot's token.
+Change the `.env.example` to `.env`. 
+
+Replace the "token" variable in the .env file with your bot's token.
+Also add your GitHub API key if you want.
 
 Run the bot by executing `python bot.py`
 

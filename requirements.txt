@@ -1,3 +1,4 @@
 aiohttp==3.8.3
 nextcord==2.4.2
 nextcord_ext_menus==1.5.6
+onami==2.6.3

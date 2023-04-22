@@ -7,13 +7,17 @@ import sqlite3 as sql
 import random
 import gitignore_parser
 import asyncio
+import datetime
 from cogs.tickets import TicketView
-from cogs.server_locked import VerifyView, PrivTicketView, PrivMessageView
+from cogs.premium import VerifyView, PrivTicketView, PrivMessageView
 from nextcord.ext import commands
 from nextcord import SlashOption, Interaction
 from nextcord.ext import application_checks
 from github import Github, InputGitTreeElement
 from dotenv import load_dotenv
+
+os.system("cls")
+
 
 load_dotenv()  # load environment variables from .env file
 
@@ -24,6 +28,10 @@ ID = os.getenv("ID")
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
+intents.guilds = True
+intents.bans = True
+intents.typing = True
+
 
 class Bot(commands.Bot):
     def __init__(self, *args, **kwargs):
@@ -41,10 +49,23 @@ class Bot(commands.Bot):
             self.persistent_views_added = True
 
         print(f"Logged in as {self.user} (ID: {self.user.id})")
+        print("------")
+        time = str(datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc))
+        utc = time.split('.')[0]
+        embed = discord.Embed(title="Uptime", description=f"Last reload: <t:{start_time.timestamp():.0f}:R>\nProgram start running at: `{utc} UTC`", color=discord.Color.green())
+        channel = bot.get_channel(1099432272005959782)
+        await channel.purge(limit=1)
+        await channel.send(embed=embed)
 
 
 bot = Bot(command_prefix="q>", intents=intents)
-code = ""
+start_time = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
+print(start_time)
+
+bot.load_extension('onami')
+os.environ["onami_NO_UNDERSCORE"] = "True"
+os.environ["onami_NO_DM_TRACEBACK"] = "True" 
+os.environ["onami_HIDE"] = "True"
 # load databases
 
 with sql.connect('data/server_entries.db') as db: 
@@ -64,8 +85,6 @@ except FileNotFoundError:
 
 
 
-
-# owner commands:
 @bot.slash_command(description="Reloads a cog.", force_global=False, guild_ids=[ID])
 @application_checks.is_owner()
 async def reload(interaction:Interaction, cog:str=SlashOption(required=True)):
@@ -131,7 +150,7 @@ async def shutdown(interaction:Interaction):
         await interaction.send("Shutting down...")
         await bot.close()
 
-@bot.slash_command(description="Wipes all data in the entries database.", force_global=False, guild_ids=[ID])
+@bot.slash_command(description="Wipes all data in the all of the databases.", force_global=False, guild_ids=[ID])
 @application_checks.is_owner()
 async def wipe_data(interaction:Interaction):
     global confirmation_code
@@ -159,7 +178,11 @@ async def wipe_data(interaction:Interaction):
         print("wiping data...")
         with open("data/server_entries.db", "w") as f:
             f.truncate(0)
-        await asyncio.sleep(3)
+        with open("data/privateTicketData.db", "w") as f1:
+            f1.truncate(0)
+        with open("data/publicTicketData.db", "w") as f2:
+            f2.truncate(0)
+        await asyncio.sleep(1)
         await interaction.send("All data wiped. Restarting...")
         def restart_program():
             python = sys.executable

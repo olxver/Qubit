@@ -190,7 +190,7 @@ class Tickets(commands.Cog):
                 ):
         if not channel:
             channel = interaction.channel
-
+        
         embed = discord.Embed(
             title="Create a ticket",
             description=desc,

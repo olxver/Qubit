@@ -9,7 +9,7 @@
 </p>
 
 
-
+-- Discontinued --
 # Qubit
 Qubit is a powerful and customizable Discord bot designed to simplify the lives of server administrators and staff.
 
